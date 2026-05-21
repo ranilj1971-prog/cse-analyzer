@@ -30,7 +30,8 @@ page = st.sidebar.radio("Select Page",
     ["Market Overview", "Stock Analyzer", "Technical Analysis", "Portfolio Tracker", "Watchlist"])
 
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
-# ====================== MARKET OVERVIEW (Ultra Safe Version) ======================
+
+# ====================== MARKET OVERVIEW ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
@@ -46,44 +47,37 @@ if page == "Market Overview":
         col4.metric("Date", str(summary.get('tradeDate', 'N/A')))
         st.markdown("---")
 
-    # Top Gainers - Very Safe
+    # Top Gainers - Super Safe Version
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
     
     if gainers:
-        try:
-            df_g = pd.DataFrame(gainers)
-            if not df_g.empty:
-                # Show all columns first so we can see the structure
-                st.dataframe(df_g, use_container_width=True, hide_index=True)
-                st.caption("Raw data shown above for debugging. We will beautify it in next step.")
-            else:
-                st.info("No gainers data available.")
-        except Exception as e:
-            st.error(f"Error displaying gainers: {e}")
-            st.write(gainers)  # fallback
+        df_g = pd.DataFrame(gainers)
+        if not df_g.empty:
+            st.caption("Raw Top Gainers Data (for debugging)")
+            st.dataframe(df_g, use_container_width=True, hide_index=True)
+            
+            st.info("Please send me a screenshot of this raw table so I can see the exact column names and make it beautiful.")
+        else:
+            st.info("No gainers data available.")
     else:
-        st.info("Top Gainers data not available right now.")
+        st.info("Unable to load Top Gainers at the moment.")
 
     st.markdown("---")
 
-    # Top Losers - Very Safe
+    # Top Losers
     st.subheader("📉 Top 10 Losers")
     losers = fetch_cse("topLooses")
-    
     if losers:
-        try:
-            df_l = pd.DataFrame(losers)
-            if not df_l.empty:
-                st.dataframe(df_l, use_container_width=True, hide_index=True)
-                st.caption("Raw data shown above.")
-            else:
-                st.info("No losers data available.")
-        except Exception as e:
-            st.error(f"Error displaying losers: {e}")
-            st.write(losers)
+        df_l = pd.DataFrame(losers)
+        if not df_l.empty:
+            st.caption("Raw Top Losers Data")
+            st.dataframe(df_l, use_container_width=True, hide_index=True)
+            st.info("Please send screenshot of this table too.")
+        else:
+            st.info("No losers data available.")
     else:
-        st.info("Top Losers data not available right now.")
+        st.info("Unable to load Top Losers at the moment.")
 # ====================== STOCK ANALYZER ======================
 elif page == "Stock Analyzer":
     st.header(f"🔍 Analysis: {symbol}")
