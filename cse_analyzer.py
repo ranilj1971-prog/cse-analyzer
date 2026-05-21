@@ -31,8 +31,7 @@ page = st.sidebar.radio("Select Page",
 
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
 
-
-# ====================== MARKET OVERVIEW (Clean Final Version) ======================
+# ====================== MARKET OVERVIEW ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
@@ -48,57 +47,45 @@ if page == "Market Overview":
         col4.metric("Date", str(summary.get('tradeDate', 'N/A')))
         st.markdown("---")
 
-    # Top Gainers
+    # === TOP GAINERS - Ultra Safe ===
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
+    
     if gainers:
-        df_g = pd.DataFrame(gainers)
-        if not df_g.empty:
-            df_display = df_g[['symbol', 'price', 'change', 'changePercentage']].copy()
-            df_display = df_display.rename(columns={
-                'symbol': 'Symbol',
-                'price': 'Price (Rs.)',
-                'change': 'Change',
-                'changePercentage': 'Change %'
-            })
-            st.dataframe(
-                df_display.style
-                    .format({"Price (Rs.)": "{:,.2f}", "Change": "{:,.2f}", "Change %": "{:.2f}%"})
-                    .background_gradient(subset=['Change %'], cmap='Greens'),
-                use_container_width=True,
-                hide_index=True
-            )
-        else:
-            st.info("No gainers data available.")
+        try:
+            df_g = pd.DataFrame(gainers)
+            if not df_g.empty:
+                st.success(f"Loaded {len(df_g)} gainers")
+                st.dataframe(df_g.head(10), use_container_width=True, hide_index=True)
+                st.caption("📋 Raw data shown above. I will beautify it after you confirm it's working.")
+            else:
+                st.info("Gainers list is empty.")
+        except Exception as e:
+            st.error(f"Error processing gainers: {e}")
+            st.write(gainers)   # Show raw data
     else:
-        st.info("Unable to load Top Gainers right now.")
+        st.info("Could not load Top Gainers at the moment.")
 
     st.markdown("---")
 
-    # Top Losers
+    # === TOP LOSERS - Ultra Safe ===
     st.subheader("📉 Top 10 Losers")
     losers = fetch_cse("topLooses")
+    
     if losers:
-        df_l = pd.DataFrame(losers)
-        if not df_l.empty:
-            df_display = df_l[['symbol', 'price', 'change', 'changePercentage']].copy()
-            df_display = df_display.rename(columns={
-                'symbol': 'Symbol',
-                'price': 'Price (Rs.)',
-                'change': 'Change',
-                'changePercentage': 'Change %'
-            })
-            st.dataframe(
-                df_display.style
-                    .format({"Price (Rs.)": "{:,.2f}", "Change": "{:,.2f}", "Change %": "{:.2f}%"})
-                    .background_gradient(subset=['Change %'], cmap='Reds'),
-                use_container_width=True,
-                hide_index=True
-            )
-        else:
-            st.info("No losers data available.")
+        try:
+            df_l = pd.DataFrame(losers)
+            if not df_l.empty:
+                st.success(f"Loaded {len(df_l)} losers")
+                st.dataframe(df_l.head(10), use_container_width=True, hide_index=True)
+                st.caption("📋 Raw data shown above.")
+            else:
+                st.info("Losers list is empty.")
+        except Exception as e:
+            st.error(f"Error processing losers: {e}")
+            st.write(losers)
     else:
-        st.info("Unable to load Top Losers right now.")
+        st.info("Could not load Top Losers at the moment.")
 # ====================== STOCK ANALYZER ======================
 elif page == "Stock Analyzer":
     st.header(f"🔍 Analysis: {symbol}")
