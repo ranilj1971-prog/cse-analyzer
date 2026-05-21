@@ -31,7 +31,8 @@ page = st.sidebar.radio("Select Page",
 
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
 
-# ====================== MARKET OVERVIEW (Clean & Professional) ======================
+
+# ====================== MARKET OVERVIEW (Clean Final Version) ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
@@ -47,14 +48,12 @@ if page == "Market Overview":
         col4.metric("Date", str(summary.get('tradeDate', 'N/A')))
         st.markdown("---")
 
-    # Top Gainers - Clean Version
+    # Top Gainers
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
-    
     if gainers:
         df_g = pd.DataFrame(gainers)
         if not df_g.empty:
-            # Select and rename relevant columns
             df_display = df_g[['symbol', 'price', 'change', 'changePercentage']].copy()
             df_display = df_display.rename(columns={
                 'symbol': 'Symbol',
@@ -62,14 +61,9 @@ if page == "Market Overview":
                 'change': 'Change',
                 'changePercentage': 'Change %'
             })
-            
             st.dataframe(
                 df_display.style
-                    .format({
-                        "Price (Rs.)": "{:,.2f}",
-                        "Change": "{:,.2f}",
-                        "Change %": "{:.2f}%"
-                    })
+                    .format({"Price (Rs.)": "{:,.2f}", "Change": "{:,.2f}", "Change %": "{:.2f}%"})
                     .background_gradient(subset=['Change %'], cmap='Greens'),
                 use_container_width=True,
                 hide_index=True
@@ -77,14 +71,13 @@ if page == "Market Overview":
         else:
             st.info("No gainers data available.")
     else:
-        st.info("Unable to load Top Gainers.")
+        st.info("Unable to load Top Gainers right now.")
 
     st.markdown("---")
 
     # Top Losers
     st.subheader("📉 Top 10 Losers")
     losers = fetch_cse("topLooses")
-    
     if losers:
         df_l = pd.DataFrame(losers)
         if not df_l.empty:
@@ -95,14 +88,9 @@ if page == "Market Overview":
                 'change': 'Change',
                 'changePercentage': 'Change %'
             })
-            
             st.dataframe(
                 df_display.style
-                    .format({
-                        "Price (Rs.)": "{:,.2f}",
-                        "Change": "{:,.2f}",
-                        "Change %": "{:.2f}%"
-                    })
+                    .format({"Price (Rs.)": "{:,.2f}", "Change": "{:,.2f}", "Change %": "{:.2f}%"})
                     .background_gradient(subset=['Change %'], cmap='Reds'),
                 use_container_width=True,
                 hide_index=True
@@ -110,7 +98,7 @@ if page == "Market Overview":
         else:
             st.info("No losers data available.")
     else:
-        st.info("Unable to load Top Losers.")
+        st.info("Unable to load Top Losers right now.")
 # ====================== STOCK ANALYZER ======================
 elif page == "Stock Analyzer":
     st.header(f"🔍 Analysis: {symbol}")
