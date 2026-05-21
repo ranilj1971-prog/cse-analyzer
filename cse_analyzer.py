@@ -31,12 +31,13 @@ page = st.sidebar.radio("Select Page",
 
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
 
-# ====================== MARKET OVERVIEW (Clean + Fixed) ======================
+
+# ====================== MARKET OVERVIEW (Safe & Clean) ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
     
-    # Market Summary
+    # 1. Market Summary
     summary = fetch_cse("marketSummery")
     if summary:
         st.subheader("📈 Today's Market Summary")
@@ -47,28 +48,27 @@ if page == "Market Overview":
         col4.metric("Date", str(summary.get('tradeDate', 'N/A')))
         st.markdown("---")
 
-    # Top Gainers - Safe Code
+    # 2. Top Gainers
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
     if gainers:
         df_g = pd.DataFrame(gainers)
-        # Use available columns safely
-        display_cols = []
-        for col in ['symbol', 'name', 'lastTradedPrice', 'change', 'changePercentage', 'tradeVolume']:
-            if col in df_g.columns:
-                display_cols.append(col)
         
-        if display_cols:
-            df_display = df_g[display_cols].copy()
-            df_display = df_display.rename(columns={
-                'symbol': 'Symbol',
-                'name': 'Company',
-                'lastTradedPrice': 'Price (Rs.)',
-                'change': 'Change',
-                'changePercentage': 'Change %',
-                'tradeVolume': 'Volume'
-            })
-            # Format numbers nicely
+        # Safe column selection
+        rename_dict = {
+            'symbol': 'Symbol',
+            'name': 'Company',
+            'lastTradedPrice': 'Price (Rs.)',
+            'change': 'Change',
+            'changePercentage': 'Change %',
+            'tradeVolume': 'Volume'
+        }
+        
+        available_cols = [col for col in rename_dict.keys() if col in df_g.columns]
+        if available_cols:
+            df_display = df_g[available_cols].copy()
+            df_display = df_display.rename(columns=rename_dict)
+            
             st.dataframe(
                 df_display.style
                     .format({"Change %": "{:.2f}%", "Price (Rs.)": "{:,.2f}", "Volume": "{:,.0f}"})
@@ -77,32 +77,23 @@ if page == "Market Overview":
                 hide_index=True
             )
         else:
-            st.write(df_g)  # fallback
+            st.write("Raw Data:", df_g)   # fallback for debugging
     else:
         st.info("Top Gainers data not available right now.")
 
     st.markdown("---")
 
-    # Top Losers
+    # 3. Top Losers
     st.subheader("📉 Top 10 Losers")
     losers = fetch_cse("topLooses")
     if losers:
         df_l = pd.DataFrame(losers)
-        display_cols = []
-        for col in ['symbol', 'name', 'lastTradedPrice', 'change', 'changePercentage', 'tradeVolume']:
-            if col in df_l.columns:
-                display_cols.append(col)
+        available_cols = [col for col in rename_dict.keys() if col in df_l.columns]
         
-        if display_cols:
-            df_display = df_l[display_cols].copy()
-            df_display = df_display.rename(columns={
-                'symbol': 'Symbol',
-                'name': 'Company',
-                'lastTradedPrice': 'Price (Rs.)',
-                'change': 'Change',
-                'changePercentage': 'Change %',
-                'tradeVolume': 'Volume'
-            })
+        if available_cols:
+            df_display = df_l[available_cols].copy()
+            df_display = df_display.rename(columns=rename_dict)
+            
             st.dataframe(
                 df_display.style
                     .format({"Change %": "{:.2f}%", "Price (Rs.)": "{:,.2f}", "Volume": "{:,.0f}"})
