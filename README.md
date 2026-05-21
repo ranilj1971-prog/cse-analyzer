@@ -1,2 +1,2 @@
 # cse-analyzer
-olombo Stock Exchange Analyzer
+Colombo Stock Exchange Analyzer
