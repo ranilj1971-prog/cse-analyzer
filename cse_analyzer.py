@@ -30,14 +30,12 @@ page = st.sidebar.radio("Select Page",
     ["Market Overview", "Stock Analyzer", "Technical Analysis", "Portfolio Tracker", "Watchlist"])
 
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
-
-
-# ====================== MARKET OVERVIEW (Safe & Clean) ======================
+# ====================== MARKET OVERVIEW (Ultra Safe Version) ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
     
-    # 1. Market Summary
+    # Market Summary
     summary = fetch_cse("marketSummery")
     if summary:
         st.subheader("📈 Today's Market Summary")
@@ -48,59 +46,42 @@ if page == "Market Overview":
         col4.metric("Date", str(summary.get('tradeDate', 'N/A')))
         st.markdown("---")
 
-    # 2. Top Gainers
+    # Top Gainers - Very Safe
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
+    
     if gainers:
-        df_g = pd.DataFrame(gainers)
-        
-        # Safe column selection
-        rename_dict = {
-            'symbol': 'Symbol',
-            'name': 'Company',
-            'lastTradedPrice': 'Price (Rs.)',
-            'change': 'Change',
-            'changePercentage': 'Change %',
-            'tradeVolume': 'Volume'
-        }
-        
-        available_cols = [col for col in rename_dict.keys() if col in df_g.columns]
-        if available_cols:
-            df_display = df_g[available_cols].copy()
-            df_display = df_display.rename(columns=rename_dict)
-            
-            st.dataframe(
-                df_display.style
-                    .format({"Change %": "{:.2f}%", "Price (Rs.)": "{:,.2f}", "Volume": "{:,.0f}"})
-                    .background_gradient(subset=['Change %'], cmap='Greens'),
-                use_container_width=True,
-                hide_index=True
-            )
-        else:
-            st.write("Raw Data:", df_g)   # fallback for debugging
+        try:
+            df_g = pd.DataFrame(gainers)
+            if not df_g.empty:
+                # Show all columns first so we can see the structure
+                st.dataframe(df_g, use_container_width=True, hide_index=True)
+                st.caption("Raw data shown above for debugging. We will beautify it in next step.")
+            else:
+                st.info("No gainers data available.")
+        except Exception as e:
+            st.error(f"Error displaying gainers: {e}")
+            st.write(gainers)  # fallback
     else:
         st.info("Top Gainers data not available right now.")
 
     st.markdown("---")
 
-    # 3. Top Losers
+    # Top Losers - Very Safe
     st.subheader("📉 Top 10 Losers")
     losers = fetch_cse("topLooses")
+    
     if losers:
-        df_l = pd.DataFrame(losers)
-        available_cols = [col for col in rename_dict.keys() if col in df_l.columns]
-        
-        if available_cols:
-            df_display = df_l[available_cols].copy()
-            df_display = df_display.rename(columns=rename_dict)
-            
-            st.dataframe(
-                df_display.style
-                    .format({"Change %": "{:.2f}%", "Price (Rs.)": "{:,.2f}", "Volume": "{:,.0f}"})
-                    .background_gradient(subset=['Change %'], cmap='Reds'),
-                use_container_width=True,
-                hide_index=True
-            )
+        try:
+            df_l = pd.DataFrame(losers)
+            if not df_l.empty:
+                st.dataframe(df_l, use_container_width=True, hide_index=True)
+                st.caption("Raw data shown above.")
+            else:
+                st.info("No losers data available.")
+        except Exception as e:
+            st.error(f"Error displaying losers: {e}")
+            st.write(losers)
     else:
         st.info("Top Losers data not available right now.")
 # ====================== STOCK ANALYZER ======================
