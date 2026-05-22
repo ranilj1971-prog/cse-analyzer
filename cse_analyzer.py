@@ -37,7 +37,7 @@ if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
     
-    # Market Summary
+    # Today's Market Summary
     summary = fetch_cse("marketSummery")
     if summary:
         st.subheader("📈 Today's Market Summary")
@@ -52,22 +52,28 @@ if page == "Market Overview":
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
     
-    if gainers and len(gainers) > 0:
+    if gainers:
         df_g = pd.DataFrame(gainers)
         if not df_g.empty:
+            # Using columns from your earlier screenshot
             df_display = df_g[['symbol', 'price', 'change', 'changePercentage']].copy()
-            df_display = df_display.rename(columns={
-                'symbol': 'Symbol',
-                'price': 'Price (Rs.)',
-                'change': 'Change',
-                'changePercentage': 'Change %'
-            })
-            # Simple version without styling to avoid error
-            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            df_display.columns = ['Symbol', 'Price (Rs.)', 'Change', 'Change %']
+            
+            st.dataframe(
+                df_display.style
+                    .format({
+                        "Price (Rs.)": "{:,.2f}",
+                        "Change": "{:,.2f}",
+                        "Change %": "{:.2f}%"
+                    })
+                    .background_gradient(subset=['Change %'], cmap='Greens'),
+                use_container_width=True,
+                hide_index=True
+            )
         else:
             st.info("No gainers data available.")
     else:
-        st.warning("Could not load Top Gainers.")
+        st.warning("Could not load Top Gainers data.")
 
     st.markdown("---")
 
@@ -75,21 +81,27 @@ if page == "Market Overview":
     st.subheader("📉 Top 10 Losers")
     losers = fetch_cse("topLooses")
     
-    if losers and len(losers) > 0:
+    if losers:
         df_l = pd.DataFrame(losers)
         if not df_l.empty:
             df_display = df_l[['symbol', 'price', 'change', 'changePercentage']].copy()
-            df_display = df_display.rename(columns={
-                'symbol': 'Symbol',
-                'price': 'Price (Rs.)',
-                'change': 'Change',
-                'changePercentage': 'Change %'
-            })
-            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            df_display.columns = ['Symbol', 'Price (Rs.)', 'Change', 'Change %']
+            
+            st.dataframe(
+                df_display.style
+                    .format({
+                        "Price (Rs.)": "{:,.2f}",
+                        "Change": "{:,.2f}",
+                        "Change %": "{:.2f}%"
+                    })
+                    .background_gradient(subset=['Change %'], cmap='Reds'),
+                use_container_width=True,
+                hide_index=True
+            )
         else:
             st.info("No losers data available.")
     else:
-        st.warning("Could not load Top Losers.")
+        st.warning("Could not load Top Losers data.")
 # ====================== STOCK ANALYZER ======================
 elif page == "Stock Analyzer":
     st.header(f"🔍 Analysis: {symbol}")
