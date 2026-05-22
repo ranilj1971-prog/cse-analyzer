@@ -58,44 +58,64 @@ if page == "Market Overview":
         st.dataframe(df_l, use_container_width=True)
 
 # ====================== STOCK ANALYZER ======================
+# ====================== STOCK ANALYZER ======================
 elif page == "Stock Analyzer":
     st.header(f"🔍 Detailed Analysis: {symbol}")
     
     if st.button("Fetch Latest Data", type="primary"):
-        with st.spinner("Fetching data..."):
+        with st.spinner("Fetching latest data..."):
             data = fetch_cse("companyInfoSummery", {"symbol": symbol})
+            
             if data and "reqSymbolInfo" in data:
                 info = data["reqSymbolInfo"]
                 
-                c1, c2, c3, c4 = st.columns(4)
-                c1.metric("Last Price", f"Rs. {info.get('lastTradedPrice')}", 
-                         f"{info.get('change')} ({info.get('changePercentage'):.2f}%)")
-                c2.metric("Market Cap", f"Rs. {info.get('marketCap', 0)/1e9:.2f} Bn")
-                c3.metric("Today's Volume", f"{info.get('tdyShareVolume', 0):,} shares")
-                c4.metric("Previous Close", f"Rs. {info.get('previousClose')}")
+                # --- Clean & Beautiful Display ---
+                col1, col2, col3, col4 = st.columns(4)
+                col1.metric("Last Traded Price", f"Rs. {info.get('lastTradedPrice')}", 
+                           f"{info.get('change')} ({info.get('changePercentage'):.2f}%)")
+                col2.metric("Market Capitalization", f"Rs. {info.get('marketCap', 0)/1e9:.2f} Bn")
+                col3.metric("Today's Volume", f"{info.get('tdyShareVolume', 0):,} shares")
+                col4.metric("Previous Close", f"Rs. {info.get('previousClose')}")
 
-                st.subheader("Company Information")
-                info_table = {
+                st.subheader("📋 Company Overview")
+                
+                # Key Information in a nice table
+                key_info = {
                     "Company Name": info.get('name'),
                     "Symbol": info.get('symbol'),
                     "ISIN": info.get('isin'),
-                    "Par Value": info.get('parValue'),
-                    "Issued Quantity": f"{info.get('quantityIssued', 0):,}",
+                    "Par Value": f"Rs. {info.get('parValue')}",
+                    "Quantity Issued": f"{info.get('quantityIssued', 0):,}",
                     "Issue Date": info.get('issueDate')
                 }
-                st.table(pd.DataFrame(info_table.items(), columns=["Field", "Value"]))
+                
+                df_info = pd.DataFrame(key_info.items(), columns=["Field", "Value"])
+                st.table(df_info)
 
-                st.subheader("Price Ranges")
-                ranges = {
-                    "Today": f"{info.get('hiTrade')} - {info.get('lowTrade')}",
-                    "This Week": f"{info.get('wtdHiPrice')} - {info.get('wtdLowPrice')}",
-                    "This Month": f"{info.get('mtdHiPrice')} - {info.get('mtdLowPrice')}",
-                    "This Year": f"{info.get('ytdHiPrice')} - {info.get('ytdLowPrice')}",
-                    "52 Weeks": f"{info.get('p12HiPrice')} - {info.get('p12LowPrice')}"
+                # Price Ranges
+                st.subheader("📊 Price Ranges")
+                price_data = {
+                    "Today High / Low": f"{info.get('hiTrade')} / {info.get('lowTrade')}",
+                    "Week High / Low": f"{info.get('wtdHiPrice')} / {info.get('wtdLowPrice')}",
+                    "Month High / Low": f"{info.get('mtdHiPrice')} / {info.get('mtdLowPrice')}",
+                    "Year High / Low": f"{info.get('ytdHiPrice')} / {info.get('ytdLowPrice')}",
+                    "52 Week High / Low": f"{info.get('p12HiPrice')} / {info.get('p12LowPrice')}",
+                    "All Time High / Low": f"{info.get('allHiPrice')} / {info.get('allLowPrice')}"
                 }
-                st.table(pd.DataFrame(ranges.items(), columns=["Period", "High - Low (Rs.)"]))
+                
+                price_df = pd.DataFrame(price_data.items(), columns=["Period", "Price (Rs.)"])
+                st.table(price_df)
+
+                # Turnover & Volume
+                st.subheader("💰 Turnover & Volume")
+                vol_col1, vol_col2 = st.columns(2)
+                with vol_col1:
+                    st.metric("Today's Turnover", f"Rs. {info.get('tdyTurnover', 0):,}")
+                with vol_col2:
+                    st.metric("MTD Turnover", f"Rs. {info.get('mtdTurnover', 0):,}")
+
             else:
-                st.error("Could not fetch data for this symbol.")
+                st.error("❌ Could not fetch data. Please check the symbol and try again.")
 
 # ====================== TECHNICAL ANALYSIS ======================
 elif page == "Technical Analysis":
