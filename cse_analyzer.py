@@ -32,12 +32,12 @@ page = st.sidebar.radio("Select Page",
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
 
 
-# ====================== MARKET OVERVIEW ======================
+# ====================== MARKET OVERVIEW (Clean & Professional) ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
     
-    # Today's Market Summary
+    # Market Summary
     summary = fetch_cse("marketSummery")
     if summary:
         st.subheader("📈 Today's Market Summary")
@@ -48,16 +48,21 @@ if page == "Market Overview":
         col4.metric("Date", str(summary.get('tradeDate', 'N/A')))
         st.markdown("---")
 
-    # Top Gainers
+    # Top Gainers - Clean Version
     st.subheader("🚀 Top 10 Gainers")
     gainers = fetch_cse("topGainers")
     
     if gainers:
         df_g = pd.DataFrame(gainers)
         if not df_g.empty:
-            # Using columns from your earlier screenshot
+            # Select and rename relevant columns
             df_display = df_g[['symbol', 'price', 'change', 'changePercentage']].copy()
-            df_display.columns = ['Symbol', 'Price (Rs.)', 'Change', 'Change %']
+            df_display = df_display.rename(columns={
+                'symbol': 'Symbol',
+                'price': 'Price (Rs.)',
+                'change': 'Change',
+                'changePercentage': 'Change %'
+            })
             
             st.dataframe(
                 df_display.style
@@ -73,7 +78,7 @@ if page == "Market Overview":
         else:
             st.info("No gainers data available.")
     else:
-        st.warning("Could not load Top Gainers data.")
+        st.info("Unable to load Top Gainers.")
 
     st.markdown("---")
 
@@ -85,7 +90,12 @@ if page == "Market Overview":
         df_l = pd.DataFrame(losers)
         if not df_l.empty:
             df_display = df_l[['symbol', 'price', 'change', 'changePercentage']].copy()
-            df_display.columns = ['Symbol', 'Price (Rs.)', 'Change', 'Change %']
+            df_display = df_display.rename(columns={
+                'symbol': 'Symbol',
+                'price': 'Price (Rs.)',
+                'change': 'Change',
+                'changePercentage': 'Change %'
+            })
             
             st.dataframe(
                 df_display.style
@@ -101,7 +111,7 @@ if page == "Market Overview":
         else:
             st.info("No losers data available.")
     else:
-        st.warning("Could not load Top Losers data.")
+        st.info("Unable to load Top Losers.")
 # ====================== STOCK ANALYZER ======================
 elif page == "Stock Analyzer":
     st.header(f"🔍 Analysis: {symbol}")
