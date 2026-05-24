@@ -31,7 +31,7 @@ page = st.sidebar.radio("Select Page",
 
 symbol = st.sidebar.text_input("🔎 Stock Symbol (e.g. JKH.N0000)", "JKH.N0000").upper()
 
-# ====================== MARKET OVERVIEW ======================
+# ====================== MARKET OVERVIEW (Clean Final) ======================
 if page == "Market Overview":
     st.header("🌍 Market Overview")
     st.markdown("---")
@@ -54,7 +54,6 @@ if page == "Market Overview":
     if gainers and len(gainers) > 0:
         df_g = pd.DataFrame(gainers)
         if not df_g.empty:
-            # Clean columns
             df_display = df_g[['symbol', 'price', 'change', 'changePercentage']].copy()
             df_display = df_display.rename(columns={
                 'symbol': 'Symbol',
@@ -62,9 +61,12 @@ if page == "Market Overview":
                 'change': 'Change (Rs.)',
                 'changePercentage': 'Change %'
             })
-            
             st.dataframe(
-                df_display,
+                df_display.style.format({
+                    "Last Price (Rs.)": "{:,.2f}",
+                    "Change (Rs.)": "{:,.2f}",
+                    "Change %": "{:.2f}%"
+                }).background_gradient(subset=['Change %'], cmap='Greens'),
                 use_container_width=True,
                 hide_index=True
             )
@@ -89,9 +91,12 @@ if page == "Market Overview":
                 'change': 'Change (Rs.)',
                 'changePercentage': 'Change %'
             })
-            
             st.dataframe(
-                df_display,
+                df_display.style.format({
+                    "Last Price (Rs.)": "{:,.2f}",
+                    "Change (Rs.)": "{:,.2f}",
+                    "Change %": "{:.2f}%"
+                }).background_gradient(subset=['Change %'], cmap='Reds'),
                 use_container_width=True,
                 hide_index=True
             )
@@ -99,6 +104,8 @@ if page == "Market Overview":
             st.info("No losers data available.")
     else:
         st.info("Top Losers data not available at the moment.")
+
+    st.caption("💡 Note: If Top Gainers/Losers are empty, the market may be closed or data not updated yet.")
 # ====================== TECHNICAL ANALYSIS ======================
 elif page == "Technical Analysis":
     st.header(f"📉 Technical Analysis: {symbol}")
